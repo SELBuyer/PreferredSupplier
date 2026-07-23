@@ -1826,79 +1826,7 @@ const supplierData = [
     "Canada",
     ""
   ],
-  [
-    "Panel Shop",
-    "Georgia",
-    "Cumming",
-    "Agape Collaborations, Inc",
-    "USA",
-    ""
-  ],
-  [
-    "Panel Shop",
-    "Alabama",
-    "Trussville",
-    "Electric Machine Control Inc",
-    "USA",
-    ""
-  ],
-  [
-    "Panel Shop",
-    "Iowa",
-    "Des Moines",
-    "Electrical Power Products, Inc (EP2)",
-    "USA",
-    ""
-  ],
-  [
-    "Panel Shop",
-    "South Carolina",
-    "Duncan",
-    "KVA, Inc",
-    "USA",
-    ""
-  ],
-  [
-    "Panel Shop",
-    "Washington",
-    "Yakima",
-    "Lake Shore Electric",
-    "USA",
-    ""
-  ],
-  [
-    "Panel Shop",
-    "California",
-    "Ontario",
-    "Myers Power Products, Inc",
-    "USA",
-    ""
-  ],
-  [
-    "Panel Shop",
-    "Florida",
-    "Jupiter",
-    "Powerserve",
-    "USA",
-    ""
-  ],
-  [
-    "Panel Shop",
-    "Iowa",
-    "Des Moines",
-    "Tri-City Electric Company",
-    "USA",
-    ""
-  ],
-  [
-    "Panel Shop",
-    "Colorado",
-    "Pueblo",
-    "Western Controls Systems (Krage MFG)",
-    "USA",
-    ""
-  ],
-  [
+   [
     "Panel Shop",
     "Alabama",
     "Goodwater",
@@ -1930,9 +1858,29 @@ Please contact es_buyers@selinc.com if:
 }
 
 function titleCase(text) {
-  const preserve = new Set(["RS America","TD Synnex","ABB","GE","HP","FS","RSA","INS","RTDS","SHI","CDW","IE","IE Corp","IEM","KW Custom Controls","nVent AVAIL","nVent TRACHTE","VFP","P and C Panel"]);
-  if (preserve.has(text)) return text;
-  return text.toLowerCase().replace(/\w/g, l => l.toUpperCase());
+  const preservePhrases = new Set(["RS America","TD Synnex","ABB","GE","HP","FS","RSA","INS","RTDS","SHI","CDW","IE","IE Corp","IEM","KW Custom Controls","nVent AVAIL","nVent TRACHTE","VFP","P and C Panel"]);
+  text = String(text ?? "").trim();
+  if (preservePhrases.has(text)) return text;
+
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+
+    return part.split(/(-)/).map(piece => {
+      if (piece === "-") return piece;
+
+      const letters = piece.replace(/[^A-Za-z]/g, "");
+      if (!letters) return piece;
+
+      // Keep acronyms and uppercase words exactly as entered: ABB, GE, IT, AC, DC, S&C, etc.
+      if (letters === letters.toUpperCase() && /[A-Z]/.test(letters)) return piece;
+
+      // Keep mixed-case brand names exactly as entered: nVent, McNaughton, McKay, etc.
+      if (/[A-Z]/.test(piece.slice(1))) return piece;
+
+      // Normal words still display cleanly in title case.
+      return piece.toLowerCase().replace(/\b[a-z]/g, l => l.toUpperCase());
+    }).join("");
+  }).join("");
 }
 
 function fillSelect(id, values, label) {
